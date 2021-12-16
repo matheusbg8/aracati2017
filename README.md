@@ -1,4 +1,4 @@
-# aracati2017
+# Dataset Aracati 2017
 This folder should be pasted in the src folder of your ROS workspace.
 
 Download the dataset from XXX
