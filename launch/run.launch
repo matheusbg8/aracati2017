@@ -15,8 +15,8 @@
   <node pkg="aracati2017" name="aerial_image"
         type="aerial_image"
         respawn="false" output="screen">
-<!--        <remap from="/odom" to="/odom_pose"/>-->
-        <remap from="/odom" to="/pose_gt"/>
+        <remap from="/odom" to="/odom_pose"/>
+        <remap from="/pose_gt" to="/pose_gt"/>
     <param name="aerial_image_path" value="$(arg image_path)" />
     <param name="son_fov_openning" value="130.0" />
     <param name="son_min_range" value="0.4" />
