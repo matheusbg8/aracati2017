@@ -165,6 +165,7 @@ add_executable(aerial_image
   src/main_aerial_image_node.cpp
   src/AerialImageNode.cpp
   src/SonShape.cpp
+  src/CircularVector.cpp
   src/AerialImage.cpp)
 
 ## Rename C++ executable without prefix
