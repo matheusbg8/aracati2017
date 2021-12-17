@@ -56,8 +56,6 @@ void Odom::CmdVelCallback(const geometry_msgs::TwistStamped &msg)
     quat_tf.setRPY(0.0,0.0,odomYaw);
     tf2::convert(quat_tf,msg.pose.orientation);
 
-    cout << "Odom yaw: " << (odomYaw *180/M_PI) << endl;
-
     // Publish odom
     pubOdom.publish(msg);
 
