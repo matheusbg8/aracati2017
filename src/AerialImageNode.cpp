@@ -50,7 +50,7 @@ bool AerialImageNode::initROS()
                      sonMinRange);
 
   // Topic Subscriptions
-  subGtPose = n.subscribe("/gt_pose",5,
+  subGtPose = n.subscribe("/pose_gt",5,
         &AerialImageNode::gtPoseCallback,this);
 
   subOdomPose = n.subscribe("/odom",5,
@@ -76,36 +76,78 @@ bool AerialImageNode::initROS()
   // UTM offset in the dataset.
   getUTMRef(); // This may wait forever (No timeout)
 
+  aerialImgHeader.frame_id = "aerial_image";
+  aerialImgHeader.seq = 0;
+
   return true;
 }
 
 void AerialImageNode::odomPoseCallback(const geometry_msgs::PoseStamped &msg)
 {
-
-}
-
-void AerialImageNode::gtPoseCallback(const geometry_msgs::PoseStamped &msg)
-{
-  Mat aerialImg = ai.getMapImg().clone();
-
   if(hasUTMRef)
   {
     Point2d UTMSonPosition = utmRef + Point2d(msg.pose.position.x,
                                            msg.pose.position.y);
 
-    double heading= tf2::getYaw(msg.pose.orientation);
+    odomPts.push(UTMSonPosition);
+  }
+}
+
+void AerialImageNode::gtPoseCallback(const geometry_msgs::PoseStamped &msg)
+{
+  if(hasUTMRef)
+  {
+    Point2d UTMSonPosition = utmRef + Point2d(msg.pose.position.x,
+                                           msg.pose.position.y);
+
+    gtPts.push(UTMSonPosition);
+    lastHeading = tf2::getYaw(msg.pose.orientation);
+  }
+}
+
+void AerialImageNode::publishAerialImg()
+{
+  Mat aerialImg = ai.getMapImg().clone();
+
+  aerialImgHeader.stamp = ros::Time::now();
+
+  // Too many point so we drop a few
+  // when drawing...
+
+
+  // Draw Odom Lines on aerial image
+  for(uint i =10; i < odomPts.size();i+=10)
+    line(aerialImg,
+         ai.UTM2Img(odomPts[i-10]),
+         ai.UTM2Img(odomPts[i]),
+         Scalar(255,0,0),2);
+
+  // Draw GT Lines on aerial image
+  for(uint i =10; i < gtPts.size();i+=10)
+    line(aerialImg,
+        ai.UTM2Img(gtPts[i-10]),
+        ai.UTM2Img(gtPts[i]),
+        Scalar(0,255,0),2);
+
+  if(!gtPts.empty())
+  {
+    const Point2d &UTMSonPosition = gtPts.last();
 
     sonShape.drawPoly(aerialImg,ai,
-                      UTMSonPosition,heading,
+                      UTMSonPosition,
+                      lastHeading,
                       Scalar(255,0,255),
                       2);
 
     // Publish sonar aerial image
-    Mat sonAerialImg = sonShape.cropSonShape(ai,UTMSonPosition,heading);
+    Mat sonAerialImg = sonShape.cropSonShape(ai,
+                       UTMSonPosition,
+                       lastHeading);
+
     sensor_msgs::ImagePtr imgMsg =
         cv_bridge::CvImage(std_msgs::Header(), "bgr8", sonAerialImg).toImageMsg();
 
-    imgMsg->header = msg.header;
+    imgMsg->header = aerialImgHeader;
     pubSonAerial.publish(imgMsg);
   }
 
@@ -113,12 +155,16 @@ void AerialImageNode::gtPoseCallback(const geometry_msgs::PoseStamped &msg)
   sensor_msgs::ImagePtr imgMsg =
       cv_bridge::CvImage(std_msgs::Header(), "bgr8", aerialImg).toImageMsg();
 
-  imgMsg->header = msg.header;
+  imgMsg->header = aerialImgHeader;
   pubAerialImgs.publish(imgMsg);
+
+  aerialImgHeader.seq++;
 }
 
 AerialImageNode::AerialImageNode():
-  it(n)
+  it(n),
+  odomPts(6000),
+  gtPts(6000)
 {
 
 }
@@ -126,5 +172,13 @@ AerialImageNode::AerialImageNode():
 void AerialImageNode::start()
 {
   initROS();
-  ros::spin();
+  ros::Rate r(4);
+
+  while(ros::ok())
+  {
+    publishAerialImg();
+    ros::spinOnce();
+    r.sleep();
+  }
+
 }
