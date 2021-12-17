@@ -33,12 +33,12 @@ void Odometry::updateVelocity(double time,
          dy = m_v.y*dt, // Displacement on body frame
          dYaw = wTheta*dt;
 
-  m_theta += dYaw;
+  m_theta -= dYaw;
 
   // Convert body velocity to global velocity
   double co = cos(m_theta), so=sin(m_theta);
-  m_p.x +=  dx*co -dy*so;
-  m_p.y +=  dx*so +dy*co;
+  m_p.x +=  dx*so +dy*co;
+  m_p.y +=  dx*co -dy*so;
 
   // Save current velocity and time
   m_v.x = vx; m_v.y = vy;
