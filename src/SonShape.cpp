@@ -88,7 +88,7 @@ void SonShape::initShape(double opening,
 
 void SonShape::drawPoly(Mat &img,
                         const AerialImage &ai,
-                        Point2d &UTMPosition,
+                        const Point2d &UTMPosition,
                         double heading,
                         const Scalar& color,
                         int thickness)
@@ -118,7 +118,9 @@ void SonShape::drawPoly(Mat &img,
             color,thickness);
 }
 
-Mat SonShape::cropSonShape(const AerialImage &ai, Point2d &UTMPosition, double heading)
+Mat SonShape::cropSonShape(const AerialImage &ai,
+                           const Point2d &UTMPosition,
+                           double heading)
 {
   vector<Point2d> newPts;
   getPoints(newPts,heading,UTMPosition);

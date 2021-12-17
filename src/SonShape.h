@@ -28,12 +28,12 @@ public:
                  double minRange);
 
   void drawPoly(Mat &img, const AerialImage &ai,
-                Point2d &UTMPosition, double heading,
+                const Point2d &UTMPosition, double heading,
                 const Scalar &color=Scalar(255,0,255),
                 int thickness=1);
 
   Mat cropSonShape(const AerialImage &ai,
-                   Point2d &UTMPosition, double heading);
+                   const Point2d &UTMPosition, double heading);
 
 
 };
