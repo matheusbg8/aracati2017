@@ -67,3 +67,10 @@ The run.launch file runs the following two nodes:
   - Subscribes on topoics: /odom_pose and /pose_gt
   - Advertise topics: /aerial_image and /son_aerial
 
+## Thanks
+
+Special thanks to Joel Gaya, Hendry Chame, Eglen Protas, Lucas Longaray, Hallan Neves, José Bratti for helping during the experiment, and professors Dr. Silvia Botelho, Dr. Paulo Drews-Jr, and Dr. Glauber Gonçalves for supporting and supervising.
+
+This study was done by researchers at Federal University of Rio Grande and it was partly supported by CNPq and the Coordenação de
+Aperfeiçoamento de Pessoal de Nível Superior - Brasil (CAPES) -
+Finance Code 001.
